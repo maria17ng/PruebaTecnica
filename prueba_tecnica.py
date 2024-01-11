@@ -2,8 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import json
 # Para que me deje navegar por las hojas y no me blooque
-from fake_useragent import UserAgent
-import time
+#from fake_useragent import UserAgent
+#import time
 
 class Scrapper_bing:
 
@@ -14,7 +14,7 @@ class Scrapper_bing:
         self.pages = pages
         self.list_pages = []
 
-        self.headers = {'User-Agent': UserAgent().random}
+        #self.headers = {'User-Agent': UserAgent().random}
 
     def define_pages (self):
         # Existen tres formatos diferentes: cuando se quiere sólo una hoja "1";
@@ -42,15 +42,13 @@ class Scrapper_bing:
         # Se cargan los resultados de la página indicada
 
         # Se une la palabra a buscar con el tipo de archivos que se buscan
-        term = self.word_search + self.filetype if len(self.filetype) > 0 else self.word_search
+        term = self.word_search + str("%20filetype:") + self.filetype if len(self.filetype) > 0 else self.word_search
         
         # Se carga la pagina
         url = self.URL.format(term, indx_page)
         print("")
         print("------------------------------------------------------------")
         print(url)
-
-        time.sleep(1)
         
         page = requests.get(url)
         soup = BeautifulSoup(page.content, "html.parser")
@@ -115,7 +113,13 @@ class Scrapper_bing:
 
         return results
 
-    
+    def save_results (self, results):
+        # Primero hay que cambiar el formao de self.pages por no admitirse ":" en la ruta de archivo
+        pages = str(self.pages).replace(":", "-")
+        with open(f"data_{self.word_search}_{self.filetype}_{pages}.json", "w") as file:
+            json.dump(results, file, indent=3)
+
+
     def search_bing (self):
         # Lo primero es determinar qué páginas quiere visitar el usuario
         self.define_pages()
@@ -124,10 +128,7 @@ class Scrapper_bing:
         results = self.make_search()
 
         # Ya se tiene una lista de diccionarios con las URL, se guarda en un JSON
-        # Primero hay que cambiar el formao de self.pages por no admitirse ":" en la ruta de archivo
-        pages = str(self.pages).replace(":", "-")
-        with open(f"data_{self.word_search}_{self.filetype}_{pages}.json", "w") as file:
-            json.dump(results, file, indent=3)
+        self.save_results(results)
 
 
 
