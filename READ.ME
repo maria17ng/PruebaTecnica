@@ -1,0 +1,49 @@
+ El programa consiste en buscar una palabra en el buscador BING según unos términos. Los resultados
+ de la búsqueda se guardan en un json, específicamente se guarda el nombre de la página, 
+ la URL y la página en la que se encuentra.
+
+ # PASO 1
+ Introducir la lista de términos compuesta por:
+ * Palabra a buscar
+ * Búsqueda por tipo de archivos
+ * Páginas de las que se quiere obtener el resultado, existen tres tipos:
+    - Si se introduce un sólo número (p.e. 1, 2, 3) sólo se busca en esa hoja.
+    - Si se introduce un intervalo con el siguiente formato "numero:numero" se buscan los 
+        resultados de el intervalo marcado.
+    - Si no se indica nada se guardan los resultados de todas las páginas.
+
+ # PASO 2
+ Se ejecuta el programa, construido utilizando orientación a objetos. Para ellos se ha creado
+ la clase Scraooer_bing, que cuenta con los siguientes atributos:
+ * URL: guarda la estructura de una URL, dejando sin rellenar los atributos a buscar y la página
+ * word_search: la palabra a buscar.
+ * filetype: guarda el tipo de archivo a buscar.
+ * pages: guarda el valor de las páginas que quiere buscar.
+ * list_pages: una lista que guarda los números de las páginas a visitar. Si por ejemplo se 
+                introduce 1:4, la lista contiene [0, 1, 2, 3].
+ * user_agent: la lista de user-agent utilizada para buscar y que no detecte que somos un bot.
+
+ Los métodos que contiene son:
+ * define_pages: método encargado de dar valor a list_pages. Es el encargado de pasar las tres 
+                 entradas diferentes a un mismo formato. Si se quieren todas las páginas la lista 
+                 se mantiene vacía.
+
+ * load_results: es la responsable de rellenar la URL con el término y la página indicada y realizar
+                 la búsqueda mediante request. Se guarda el resultado en una lista de diccionarios
+                 que contiene el nombre, url y número de página de la que se ha sacado.
+
+ * make_search_page_limit: método encargado de ir cambiando de número de hoja. Una vez
+                           conoce el número de hoja que buscar llama a load_results().
+
+ * make_search_no_page_limit: método utilizado para cuando se quiere el resultado de todas 
+                              las páginas.
+
+ * make_search: método encargado de determinar si la búsqueda que se quiere hacer está definida
+                (existe un número de páginas limitadas) o si es indefinida (se quieren todos 
+                los resultados)
+
+ * save_results: método encargado de alcamcenar los resultados obtenidos en un JSON
+
+ * search_bing: método encargado de llamar al resto de funciones, primero define las páginas a 
+                buscar, luego las busca, y por último guarda los resultados.
+ 
