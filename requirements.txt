@@ -1,3 +1,2 @@
 request
 BeautifulSoup
-fake_useragent

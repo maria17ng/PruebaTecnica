@@ -2,8 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import json
 # Para que me deje navegar por las hojas y no me blooque
-#from fake_useragent import UserAgent
-#import time
+import time
+import random
 
 class Scrapper_bing:
 
@@ -14,7 +14,18 @@ class Scrapper_bing:
         self.pages = pages
         self.list_pages = []
 
-        #self.headers = {'User-Agent': UserAgent().random}
+        self.user_agent = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15'
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15'
+        ]    
+
+        self.time_sleep = [1, 2, 3, 4, 5, 6]  
+           
 
     def define_pages (self):
         # Existen tres formatos diferentes: cuando se quiere sólo una hoja "1";
@@ -49,14 +60,16 @@ class Scrapper_bing:
         print("")
         print("------------------------------------------------------------")
         print(url)
-        
-        page = requests.get(url)
-        soup = BeautifulSoup(page.content, "html.parser")
 
+        time.sleep(2)
+        
+        headers = {'User-Agent': random.choice(self.user_agent)}
+        page = requests.get(url, cookies={}, headers=headers)
+        soup = BeautifulSoup(page.content, "html.parser")
+        
         # Se cogen los resultados
         # Se coge el contenedor donde se guardan las búsquedas
         cont_results = soup.find(id="b_results")
-
         # Extraer las URL de los resultados de búsqueda
         url_elements = cont_results.find_all("a", class_="tilk")
 
@@ -65,7 +78,7 @@ class Scrapper_bing:
             link_url = url_element["href"]
             name_url = url_element.find_all("div", class_="tptt")[0].text.strip()
             print(f"Nombre: {name_url} \t URL: {link_url}")
-            dict_url = {"Nombre": name_url, "URL": link_url}
+            dict_url = {"Nombre": name_url, "URL": link_url, "Pagina":int (indx_page/10 + 1)}
             results.append(dict_url)
 
         return results
@@ -102,7 +115,7 @@ class Scrapper_bing:
 
     def make_search (self):
         # La busqueda se puede realizar para unas páginas limitadas o para todas
-        
+
         results = []
         if len(self.list_pages) > 0:
             # El número de páginas a buscar esta limitado
@@ -116,7 +129,7 @@ class Scrapper_bing:
     def save_results (self, results):
         # Primero hay que cambiar el formao de self.pages por no admitirse ":" en la ruta de archivo
         pages = str(self.pages).replace(":", "-")
-        with open(f"data_{self.word_search}_{self.filetype}_{pages}.json", "w") as file:
+        with open(f"results/data_{self.word_search}_{self.filetype}_{pages}.json", "w") as file:
             json.dump(results, file, indent=3)
 
 
@@ -143,3 +156,5 @@ for json_element in json_list:
 
     # Ahora se llama a la función encargada de realizar la búsqueda
     scraper.search_bing()
+
+    time.sleep(4)
